@@ -1,0 +1,44 @@
+const movieService = require('../services/movie_Service');
+
+class MovieController {
+  async create(req, res) {
+    const { title, genre, year } = req.body;
+    const photo = req.file ? req.file.filename : null;
+    const movie = await movieService.createMovie({ title, genre, year, photo });
+    res.json(movie);
+  }
+
+  async getAll(req, res) {
+    const movies = await movieService.getAllMovies();
+    res.json(movies);
+  }
+
+  async getById(req, res) {
+    const movie = await movieService.getMovieById(req.params.id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+    res.json(movie);
+  }
+
+  async update(req, res) {
+    const { title, genre, year } = req.body;
+    const data = { title, genre, year };
+    if (req.file) data.photo = req.file.filename;
+    const movie = await movieService.updateMovie(req.params.id, data);
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+    res.json(movie);
+  }
+
+  async delete(req, res) {
+    const movie = await movieService.deleteMovie(req.params.id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+    res.sendStatus(204);
+  }
+}
+
+module.exports = new MovieController();
